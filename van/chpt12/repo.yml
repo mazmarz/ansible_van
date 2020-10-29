@@ -1,0 +1,76 @@
+---
+- hosts: rh1
+  become: 1
+  serial: 1
+  tasks:
+
+  - name: mount cdrom
+    mount:
+      path: /cdrom
+      src: /dev/sr0
+      fstype: iso9660
+      opts: ro
+      state: mounted
+
+  - name: download all nginx packages
+    yum:
+      name: 'nginx*'
+      download_only: 1
+      download_dir: /var/ftp/repo
+      state: present
+
+  - name: install ftp software
+    yum:
+      name: 
+      - vsftpd
+      - firewalld
+      - createrepo_c
+      state: present
+
+  - name: startup services
+    service:
+      name: "{{ item }}"
+      state: started
+      enabled: yes
+    loop:
+    - vsftpd
+    - firewalld
+
+  - name: setup correct firewall rule
+    firewalld:
+      service: ftp
+      immediate: yes
+      permanent: yes
+      state: enabled
+
+  - name: create directory, if required, for metadata
+    file:
+      state: directory
+      path: /var/ftp/repo
+      mode: 0755
+      
+
+  - name: create repo
+    command: 
+      cmd: createrepo /var/ftp/repo
+      creates: /var/ftp/repo/repodata
+    register: cmd
+
+  - name: show how the output should look like
+    debug:
+      msg: |
+        {{ cmd | to_yaml }}
+
+  - name: ensure that the vsftp.conf file is corrected
+    lineinfile:
+      line: anonymous_enable=YES
+      regex: '^anonymous_enable '
+      path: /etc/vsftpd/vsftpd.conf
+
+
+  handlers:
+
+  - name: restart ftp
+    service:
+      name: vsftpd
+      state: restarted

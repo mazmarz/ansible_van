@@ -1,0 +1,65 @@
+---
+- hosts: rh2
+  become: 1
+  tasks:
+
+
+  - name: install vsftpd and firewalld
+    yum:
+      name:
+      - vsftpd
+      - firewalld
+      state: present
+
+  - name: start services
+    service:
+      name: "{{ item }}"
+      state: started
+      enabled: yes
+    loop: 
+    - vsftpd
+    - firewalld
+
+  - name: setup firewalld correctly
+    firewalld:
+      service: ftp
+      immediate: yes
+      permanent: yes
+      state: enabled
+
+  - name: fix vsftpd conf file
+    lineinfile:
+      regex: "{{ item.regex }}"
+      line: "{{ item.line }}"
+      path: /etc/vsftpd/vsftpd.conf
+    loop: 
+    - regex: '^local_enable='
+      line: 'local_enable=YES'
+    - regex: '^write_enable='
+      line: 'write_enable=YES'
+    - regex: '^anon_upload_enable='
+      line: 'anon_upload_enable=YES'
+    notify: restart vsftpd service
+
+  - name: create pub directory if it doesn't exist yet
+    file:
+      path: /var/ftp/pub
+      mode: 0777
+      state: directory
+      setype: public_content_rw_t
+
+  - name: run selinux role to set the selinux bool
+    include_role: 
+      name: rhel-system-roles.selinux
+    vars:
+      selinux_booleans:
+        - { name: 'ftpd_anon_write', state: 'on' }
+    
+
+  handlers:
+
+  - name: restart vsftpd service
+    service:
+      name: vsftpd
+      state: restarted
+

@@ -1,0 +1,23 @@
+---
+- hosts: rh2
+  become: 1
+  pre_tasks:
+
+  - name: name create ftp directory
+    file:
+      path: /var/ftp/uploads
+      mode: 777
+      state: directory
+
+  roles:
+
+  - role: rhel-system-roles.selinux
+    vars:
+      selinux_state: enforcing
+      selinux_booleans:
+        - { name: 'cron_can_relabel', state: 'on' }
+      selinux_fcontexts:
+        - { target: '/var/ftp/uploads(/.*)?', setype: 'public_content_rw_t', ftype: 'd', state: 'present' }
+      selinux_ports:
+        - { ports: '82', proto: 'tcp', setype: 'http_port_t', state: 'present' }
+        - { ports: '80', proto: 'tcp', setype: 'http_port_t', state: 'absent' }

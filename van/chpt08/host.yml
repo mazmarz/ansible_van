@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: 1
+  tasks:
+
+  - name: write hosts file
+    template:
+      src: hosts.j2
+      dest: /etc/hosts
+    delegate_to: rh2

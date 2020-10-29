@@ -1,0 +1,4 @@
+#!/bin/bash
+cat << EOF
+{ "name" : "$(df -h | awk '/\/$/ {print $5}')" }
+EOF

@@ -1,0 +1,48 @@
+---
+- hosts: all
+  become: 1
+  vars_files:
+  - users.yml
+  vars_prompt:
+  - name: passwd
+    prompt: enter the password
+  tasks:
+
+
+  - name: first create groups otherwise we can't do anything
+    group:
+      gid: "{{ item.value.gid }}"
+      name: "{{ item.key }}"
+    loop: "{{ Groups | dict2items }}"
+
+
+  - name: create the users
+    user:
+      name: "{{ item.key }}"
+      generate_ssh_key: "{{ item.value.ssh_key if inventory_hostname == 'rh1' else 'no' }}"
+      groups: "{{ item.value.groups }}"
+      password: "{{ passwd | password_hash('sha512','saltit') }}"
+    register: create
+    loop: "{{ users | dict2items }}"
+
+  - name: create an array of dictionary with name and key for each entry
+    set_fact:
+      pub_keys: "{{ pub_keys|default([]) + [{'name': item.name , 'key': item.ssh_public_key }] }}"  
+    loop: "{{ create.results }}"
+    when: item.ssh_public_key is defined
+
+  - name: write sudoer file in the correct place on managed machine
+    template:
+      dest: /etc/sudoers.d/ansible.users
+      src: sudo.j2
+      mode: 0600
+      owner: root
+      validate: "visudo -c -f %s"
+      setype: etc_t
+
+  - name: add public keys of all the users on all the managed hosts
+    authorized_key:
+      user: "{{ item.name }}"
+      key: "{{ item.key }}"
+      state: present
+    loop: "{{ hostvars['rh1'].pub_keys }}"

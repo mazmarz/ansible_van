@@ -1,0 +1,11 @@
+{% for item in Groups | dict2items %}
+{% if item.value.sudoer -%}
+%{{ item.key }} ALL=(ALL) ALL
+{% endif -%}
+{% endfor %}
+
+{% for item in users | dict2items %}
+{% if item.value.sudoer -%}
+{{ item.key }} ALL=(ALL) ALL
+{% endif -%}
+{% endfor %}

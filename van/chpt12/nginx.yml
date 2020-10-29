@@ -1,0 +1,30 @@
+---
+- hosts: all
+  become: 1
+  tasks:
+
+
+  - name: add a line in the hosts file to rh1 has repo 
+    lineinfile:
+      path: /etc/hosts
+      regex: '^10.0.2.4 repo'
+      line: '10.0.2.4 repo'
+
+
+  - name: fix repository file
+    yum_repository:
+      name: nginx_repo
+      description: a local repository for nginx
+      baseurl: ftp://repo/repo/
+      gpgcheck: no
+      enabled: yes
+
+  - name: umount cdrom drive just in case
+    mount:
+      path: /cdrom
+      state: unmounted
+
+  - name: attempt to install nginx
+    yum:
+      name: nginx
+      state: present

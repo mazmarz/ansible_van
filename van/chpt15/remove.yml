@@ -1,0 +1,54 @@
+---
+- hosts: all
+  become: 1
+  vars_files:
+    save_vars.yml
+  tasks:
+
+
+
+  - name: show all files I would like to umount
+    mount:
+      path: "{{ ansible_mounts | selectattr('device','search',item) | map(attribute='mount') | join }}"
+      state: unmounted 
+    loop: "{{ ansible_mounts | map(attribute='device') | list }}"
+    when: item not in save_lvols
+
+  - name: create a list of vgs and lvols to preserve
+    set_fact:
+      s_vgs: "{{[ item | regex_replace('^/dev/mapper/(.*)-.*', '\\1')] }} + {{ s_vgs| default([]) }}"
+      s_vols: "{{[item | regex_replace('^/dev/mapper/.*-(.*)', '\\1')] }}  + {{  s_vols| default(['swap']) }}"
+    loop: "{{ save_lvols }}"
+    when: item | regex_search('^/dev/mapper')
+
+  - name:
+    debug:
+      msg: |
+        s_vgs: {{ s_vgs }}
+        s_vols: {{ s_vols }}
+
+  - name: remove lvols
+    lvol:
+      lv: "{{ item }}"
+      vg: "{{ ansible_facts['lvm']['lvs'][item]['vg'] }}"
+      state: absent
+      force: yes
+    loop: "{{ ansible_lvm.lvs | list }}"
+    when: item not in s_vols
+
+  - name: remove vgs
+    lvg:
+      vg: "{{ item }}"
+      state: absent
+    loop: "{{ ansible_lvm.vgs | list }}"
+    when: 
+    - item not in s_vgs
+
+  - name: remove all partitions
+    debug:
+      msg: |
+        parted:
+          number: "{{ item }}"
+          state: absent
+    loop: "{{ ansible_lvm.pvs | list }}"
+    when: ansible_facts['lvm']['pvs'][item]['vg'] == ""

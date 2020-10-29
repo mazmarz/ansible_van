@@ -1,0 +1,25 @@
+---
+- hosts: localhost
+  become: 1
+  tasks:
+
+  - name: cat file 
+    command: cat /home/bob/.ssh/id_rsa.pub
+    register: cat
+
+  - debug:
+      msg: | 
+        dog: {{ cat.stdout }}
+
+  - name: add the variable
+    set_fact:
+      rsa_key: 'bob'
+    delegate_to: localhost
+
+  - name: refresh
+    setup:
+
+  - name: hostvars
+    debug:
+      msg: |
+        fact -> {{ hostvars['localhost'].rsa_key }}

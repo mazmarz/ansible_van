@@ -1,0 +1,10 @@
+rh1 ansible_host=10.0.2.5
+rh2 ansible_host=10.0.2.4
+rh3 ansible_host=10.0.2.6
+
+[webservers]
+rh3
+rh2
+
+[DBs]
+rh2

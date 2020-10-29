@@ -1,0 +1,24 @@
+---
+- hosts: all
+  become: 1
+  vars_files:
+  - users.yml
+  tasks:
+
+  - name: remove .ssh directory
+    debug:
+      msg: "{{ '/home/' +  item.key  + '/.ssh' }}"
+    loop: "{{ users | dict2items }}"
+
+  - name: remove .ssh directory
+    file:
+      path: "{{'/home/' + item.key + '/.ssh'}}"
+      state: absent
+    loop: "{{ users | dict2items }}"
+
+  - name: list host I'm on
+    debug:
+      msg: |
+        host: {{ lookup('env','HOSTNAME') }}
+    delegate_to: rh1
+    tags: test

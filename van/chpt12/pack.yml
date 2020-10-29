@@ -1,0 +1,15 @@
+---
+- hosts: all
+  gather_facts: no
+  serial: 1
+  tasks:
+
+
+  - name: get package info
+    package_facts:
+
+  - name: print out the required info
+    debug:
+      msg: |
+        Packgage name: {{ ansible_facts.packages.nginx | map(attribute='name') | list }}
+        Packgage version: {{ ansible_facts.packages.nginx[0].version }}

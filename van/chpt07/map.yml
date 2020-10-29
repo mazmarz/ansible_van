@@ -1,0 +1,12 @@
+---
+- hosts: rh1
+  gather_facts: true
+  tasks:
+
+  - debug:
+      msg: |
+        $$ {{ ansible_facts.devices | to_yaml  }}        
+        @@ {{ ['sd*'] | map('extract', ansible_facts.devices, ['partitions','sdb1'] ) | list | to_yaml }}
+        -------
+        @@ {{ ansible_facts.devices.sdb.partitions.sdb1 | to_yaml }}
+

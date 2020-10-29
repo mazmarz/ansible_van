@@ -1,0 +1,27 @@
+---
+- hosts: rh3
+  become: yes
+  tasks:
+
+  - name: install programs
+    assert:
+      that: 
+      - ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+      fail_msg: "Need to bail"
+    
+  - name: packages
+    yum:
+      name: "{{ packages }}"
+      state: present
+
+  - name: check if a packages exists; first gather info
+    package_facts:
+
+  - name: debug
+    debug:
+      msg: | 
+        {{ ansible_facts.packages | dict2items  | selectattr('key','search','http') | map(attribute='value')  | flatten | map(attribute='name') | list }}
+        +++++
+        {{ ansible_facts.devices | dict2items  | selectattr('key','search','^sd') | map(attribute='value')  | flatten | to_yaml }}
+
+    

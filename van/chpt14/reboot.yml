@@ -1,0 +1,16 @@
+---
+- hosts: rh2
+  become: 1
+  gather_facts: 0
+  tasks:
+
+  - name: reboot host
+    reboot:
+      msg: reboot initiated by Ansible
+      test_command: whoami
+
+  - name: check if it has come up
+    debug:
+      msg: |
+        rh2 has bee rebooted successfully
+

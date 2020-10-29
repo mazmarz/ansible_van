@@ -1,0 +1,9 @@
+---
+- hosts: rh3
+  become: 1
+  roles:
+  - name: nginx
+    scm: git
+    src: https://github.com/nginxinc/ansible-role-nginx
+   
+

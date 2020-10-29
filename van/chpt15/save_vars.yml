@@ -1,0 +1,5 @@
+save_lvols: 
+- /dev/mapper/rhel-root
+- /dev/sda1
+- /dev/sr0
+- swap

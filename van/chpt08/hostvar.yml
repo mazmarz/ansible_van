@@ -1,0 +1,9 @@
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+
+  - name: print out host vars
+    debug:
+      msg: |
+        hostvar: {{ hostvars[inventory_hostname] | to_yaml }}

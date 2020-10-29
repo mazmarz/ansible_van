@@ -1,0 +1,26 @@
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+
+  - name: show current hostvars
+    debug:
+      msg: |
+        {{ hostvars | to_yaml }}
+
+  - name: create facts directory
+    file:
+      state: directory
+      path: /etc/ansible/facts.d/
+      mode: 0755
+
+  - name: copy over the copy file
+    copy:
+      src: jane.fact
+      dest: /etc/ansible/facts.d/jane.fact
+      mode: 0644
+      owner: root
+
+  - debug:
+      msg: |
+        FACT: {{ ansible_facts.jane.name }}

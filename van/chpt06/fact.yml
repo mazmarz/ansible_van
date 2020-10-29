@@ -1,0 +1,27 @@
+---
+- hosts: rh2
+  gather_facts: no
+  become: 1
+  tasks:
+
+
+  - name: create facts directory
+    file:
+      state: directory
+      path: /etc/ansible/facts.d/
+      mode: 0755
+
+  - name: copy over the copy file
+    copy:
+      src: jane.fact
+      dest: /etc/ansible/facts.d/jane.fact
+      mode: 0755
+      owner: root
+
+  - name: refresh local facts
+    setup:
+      filter: ansible_local
+
+  - debug:
+      msg: |
+        FACT: {{ ansible_local.jane.name }}

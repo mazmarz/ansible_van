@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: 1
+  ignore_errors: 1
+  tasks:
+
+
+  - name: check if no errors work
+    debug:
+      var: dog
+    when: dog == cat
+
+  - name: read setup file
+    debug:
+      msg: |
+        Is greater than 2GB
+    when: 
+    - (ansible_lvm.vgs.vg_database.size_g | default('-1') | int ) > 20
+
+  
