@@ -1,0 +1,38 @@
+--- 
+- hosts: all
+  become: 1
+  gather_facts: no
+  vars_prompt:
+  - name: passwd
+    prompt: Enter password => 
+  vars_files:
+  - user_list.yml
+
+  tasks:
+
+  - name: separate users
+    set_fact:
+      users_webserver: "{{ users | selectattr('userid','search','^3') | list }}"
+      users_db: "{{ users | selectattr('userid','search','^4') | list }}"
+      passwd: "{{ passwd }}"
+    tags: vars
+
+- hosts: web
+  become: yes
+  tasks:
+  - name: create the users
+    vars:
+    - server: rh1
+    - users: "{{ users_webserver }}"
+    include_tasks: create_user.yml
+
+- hosts: db
+  become: yes
+  tasks:
+  - name: create the users
+    vars:
+    - server: rh1
+    - users: "{{ users_db }}"
+    include_tasks: create_user.yml
+  
+

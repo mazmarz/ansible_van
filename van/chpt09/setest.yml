@@ -1,0 +1,56 @@
+---
+- hosts: rh2
+  become: 1
+  vars:
+    msg: |
+      {{ ansible_facts.packages | to_yaml }}
+  tasks:
+
+  - name: mount the bloody cdrom
+    mount:
+      src: /dev/sr0
+      path: /cdrom
+      fstype: iso9660
+      state: mounted
+
+  - name:
+    yum_repository:
+      name: nginx_repo
+      state: absent
+    tags: go
+
+  - name: get package list
+    package_facts:
+  - debug:
+      msg: |
+        {{ msg }}
+  - name: find the bloody package
+    debug:
+      msg: |
+        {{ item }}
+    loop: "{{ ansible_facts.packages | dict2items }}"
+    when:  item.key is  search('policy')
+
+  - name: make sure selinux utils are installed
+    yum:
+      name: python3-policycoreutils
+      state: present
+
+  - name: make directory
+    file:
+      state: directory
+      path: /tmp/dir
+
+  - name: change default context
+    sefcontext:
+      target: '/tmp/dir(/.*)?'
+      setype: httpd_sys_content_t
+      state: present
+    notify: restorecon
+    changed_when: 1
+
+
+  handlers:
+
+  - name: restorecon
+    command: restorecon -R /tmp/dir

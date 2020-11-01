@@ -1,0 +1,43 @@
+users:
+
+- name: bob
+  passwd:
+  sudoer: true
+  userid: 3001
+  groups: webdev, mailadmin
+  ssh_key: true
+- name: jane
+  passwd:
+  sudoer: false
+  groups: webdev
+  userid: 3002
+  ssh_key: true
+- name: joe
+  passwd:
+  sudoer: false
+  groups: student
+  userid: 4002
+  ssh_key: false
+- name: jack
+  passwd:
+  sudoer: false
+  userid: 4001
+  groups: webdev, student
+  ssh_key: false
+- name: clara
+  passwd:
+  userid: 4003
+  sudoer: false
+  groups: student
+  ssh_key: true
+
+Groups:
+- name: webdev
+  sudoer: no
+  gid: 5001
+- name: mailadmin
+  sudoer: yes
+  gid: 5002
+- name: student
+  sudoer: no
+  gid: 5003

@@ -1,0 +1,9 @@
+---
+- hosts: rh3
+  become: 1
+  roles:
+
+  - role: rhel-system-roles.timesync
+    timesync_ntp_servers:
+    - hostname: pool.ntp.org
+      iburst: yes

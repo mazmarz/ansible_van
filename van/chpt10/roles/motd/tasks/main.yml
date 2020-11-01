@@ -1,0 +1,9 @@
+---
+# tasks file for motd
+#
+  - name: write the motd
+    copy:
+      content: "{{ msg }}"
+      dest: /etc/motd
+      owner: root
+      backup: yes

@@ -1,0 +1,87 @@
+---
+- hosts: rh2
+  become: 1
+  gather_facts: 0
+  tasks:
+
+  - name: set up selinux
+    selinux:
+      state: enforcing
+      policy: targeted
+
+  - name: install webserver
+    yum:
+      name: 
+      - httpd
+      - firewalld
+      state: present
+
+  - name: start and enable the it
+    service:
+      name: httpd
+      enabled: yes
+      state: started
+    ignore_errors: 1
+
+  - debug:
+      msg: |
+        error
+
+  - name: setup firewall rules
+    firewalld:
+      service: http
+      state: enabled
+      permanent: yes
+      immediate: yes
+
+  - name: mkdir the web directory
+    file:
+      state: directory
+      path: /web
+      owner: root
+      mode: 755
+
+  - name: create an index file
+    copy:
+      dest: /web/index.html
+      content: |
+        You have reached server {{ inventory_hostname }}
+      owner: root
+      mode: 644
+
+  - name: change doc root 
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regex: "{{ item.regex }}"
+      line: "{{ item.line }}"
+      state: present
+    loop:
+    - {regex: '^DocumentRoot ', line: 'DocumentRoot /web'}
+    - {regex: '^<Directory "/var/www/html">', line: '<Directory "/web">'}
+
+  - name: change selinux permissions
+    sefcontext:
+      target: '/web(/.*)?'
+      setype: httpd_sys_content_t
+    notify: 
+    - restorecon
+    - restart httpd
+    changed_when: true
+
+
+  handlers:
+
+  - name: restart httpd
+    service:
+      name: httpd
+      state: restarted
+
+  - name: restorecon
+    command: restorecon -R /web
+
+  post_tasks:
+
+
+  - name: test it
+    uri:
+      url: http://rh2/

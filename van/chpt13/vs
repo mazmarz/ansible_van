@@ -23,7 +23,6 @@ set window=71
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
 silent only
-cd ~/van/chpt14
 if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
@@ -168,8 +167,8 @@ exe s:l
 normal! zt
 7
 normal! 020|
-lcd ~/van/chpt14
-tabedit ~/van/chpt14/users.yml
+lcd ~/van/chpt13
+tabedit ~/van/chpt13/users.yml
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -299,8 +298,8 @@ exe s:l
 normal! zt
 38
 normal! 05|
-lcd ~/van/chpt14
-tabedit ~/van/chpt14/ansible.cfg
+lcd ~/van/chpt13
+tabedit ~/van/chpt13/ansible.cfg
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -430,8 +429,8 @@ exe s:l
 normal! zt
 7
 normal! 0
-lcd ~/van/chpt14
-tabedit ~/van/chpt14/sudoer.yml
+lcd ~/van/chpt13
+tabedit ~/van/chpt13/sudoer.yml
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -561,8 +560,8 @@ exe s:l
 normal! zt
 43
 normal! 020|
-lcd ~/van/chpt14
-tabedit ~/van/chpt14/remove.yml
+lcd ~/van/chpt13
+tabedit ~/van/chpt13/remove.yml
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -686,13 +685,13 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 15 - ((14 * winheight(0) + 34) / 68)
+let s:l = 15 - ((13 * winheight(0) + 34) / 68)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 15
 normal! 046|
-lcd ~/van/chpt14
+lcd ~/van/chpt13
 tabnext 4
 set stal=1
 if exists('s:wipebuf') && s:wipebuf != bufnr('%')

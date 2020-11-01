@@ -10,7 +10,7 @@
   - name: show all files I would like to umount
     mount:
       path: "{{ ansible_mounts | selectattr('device','search',item) | map(attribute='mount') | join }}"
-      state: unmounted 
+      state: absent 
     loop: "{{ ansible_mounts | map(attribute='device') | list }}"
     when: item not in save_lvols
 

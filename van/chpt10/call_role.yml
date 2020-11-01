@@ -1,0 +1,9 @@
+---
+- hosts: rh3
+  become: 1
+  roles:
+
+j
+  - role: motd
+    msg: |
+      Hello there!!!

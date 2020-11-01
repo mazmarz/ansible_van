@@ -1,0 +1,23 @@
+
+
+  - name: create users and ssh keys
+    user:
+      name: "{{ item.name }}"
+      password: "{{ passwd | password_hash('sha512','saltit') }}"
+      groups: "{{ item.groups }}" 
+      generate_ssh_key: "{{ 'yes' if inventory_hostname != 'rh1' else 'no' }}"
+      state: present
+    loop: "{{ users }}"    
+    register: create
+    tags: delete
+
+  - name: copy ssh keys to all other hosts
+    authorized_key:
+      user: "{{ item.name }}"
+      key: "{{ item.ssh_public_key }}"
+    loop: "{{ create.results }}"
+    when: item.ssh_public_key | default()
+    loop_control:
+      label: "{{ item.name }}"
+      index_var: idx
+  

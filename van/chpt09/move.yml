@@ -1,0 +1,31 @@
+---
+- hosts: all
+  tasks:
+
+  - name: copy file
+    copy:
+      src: /etc/hosts
+      dest: /tmp/
+  
+  - name: add 
+    blockinfile:
+      path: /tmp/hosts
+      block: |
+        {{ ansible_default_ipv4.address }}
+        {{ hostvars['rh1'].ansible_default_ipv4.address }}
+      state: present
+
+  - name: determine checksum
+    stat:
+      path: /tmp/hosts
+      checksum_algorithm: md5
+    register: result
+  - debug:
+      msg: |
+        sum => {{ result.stat.checksum }}
+
+
+  - name: called them all to see what you created
+    fetch:
+      src: /tmp/hosts
+      dest: /tmp

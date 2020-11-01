@@ -1,0 +1,24 @@
+---
+- hosts: rh3
+  become: 1
+
+  pre_tasks:
+
+  - name: remove broken repo
+    yum_repository:
+      name: nginx_repo
+      state: absent
+
+  roles:
+
+  - role: rhel-system-roles.timesync
+    timesync_ntp_servers:
+    - hostname: pool.ntp.org
+      iburst: yes
+
+  post_tasks:
+
+  - debug:
+      msg: |
+        name: {{ timezone }}
+
